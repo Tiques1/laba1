@@ -1,0 +1,72 @@
+import random as rnd
+import time as tm
+import matplotlib.pyplot as plt
+import math
+
+def time_decorator(foo):
+    def decorator(n):
+        time_start = tm.perf_counter_ns()
+        result = foo(n)
+        time_end = tm.perf_counter_ns()
+        return time_end - time_start
+    return decorator
+
+#алгоритм сортировки пузырьком: сложность n^2
+@time_decorator
+def bubble_sort(n_array):
+    sorted = False
+    while sorted == False:
+        sorted = True
+        for i in range(len(n_array)-1):
+            if n_array[i] > n_array[i+1]:
+                c = n_array[i]
+                n_array[i] = n_array[i+1]
+                n_array[i+1] = c
+                sorted = False
+                
+    return n_array
+
+#алгоритм посчета уникальных элементов: сложность n
+@time_decorator
+def unic_elem(n_array):
+    unic_elems = []
+    for i in n_array:
+        if i in unic_elems:
+            continue
+        else:
+            unic_elems.append(i)
+    return len(unic_elems)
+
+#сортировка слиянием: сложность nlogn
+def merge_time(array):
+    start_time = tm.perf_counter_ns()
+    def merges(array):
+            new_array = list(array)
+            for i in range(len(new_array)):
+                new_array[i] = min(array)
+                array.remove(min(array))
+            return new_array
+
+    def merge_sort(n_array):
+        if len(n_array) == 2:
+            if n_array[0] > n_array[1]:
+                return list([n_array[1], n_array[0]])
+            else:
+                return n_array
+        if len(n_array) <= 1:
+            return n_array
+        return merges(merge_sort(n_array[0:int(len(n_array)/2)]) + merge_sort(n_array[int(len(n_array)/2):]))
+    
+    merge_sort(array)
+    return tm.perf_counter_ns()  - start_time
+
+n_count = [1, 2, 5, 7, 10, 15, 20, 30, 50, 70, 100, 150]
+
+n_bubble_sort_time = []
+n_unic_elem_time = []
+n_merge_sort_time = []
+
+for i in range(len(n_count)):
+    n_bubble_sort_time.append(bubble_sort([rnd.randint(0, 100) for i in range(n_count[i])]))
+    n_unic_elem_time.append(unic_elem([rnd.randint(0, 100) for i in range(n_count[i])]))
+    n_merge_sort_time.append(merge_time([rnd.randint(0, 100) for i in range(n_count[i])]))
